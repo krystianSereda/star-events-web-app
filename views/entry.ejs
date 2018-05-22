@@ -4,14 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./css/main.css">
-    <link href="https://fonts.googleapis.com/css?family=Raleway:300,400" rel="stylesheet">
     <title>Entries</title>
 </head>
 <body>
     <h1>Entries</h1>
-    <ol class="entries-list">
+    <div class="year-month-sign" id="y_m_sign_0" onscroll="console.log('j')">
+            <h1>Mai 2018</h1>
+        </div>
+    <div class="year-month-sign" id="y_m_sign_1">
+        <h1>Jun 2018</h1>
+    </div>
+    <div class="year-month-sign" id="y_m_sign_2">
+        <h1>Jul 2018</h1>
+    </div>
+    <div class="year-month-sign" id="y_m_sign_3">
+        <h1>Okt 2018</h1>
+    </div>
+    <ol class="entry-list">
+        <%var i = 0;%>
         <%jsonResults.forEach(elem => {%>
-            <li>
+            <li id=<%="entry_id_" +i%>>
                 <div class="entry-title">
                     <h3><%= elem.EventDate %></h4>
                     <h3><%= elem.EventLoc %></h4>
@@ -30,8 +42,39 @@
                 <% } %>
                 <button onclick="console.log('mehr')">mehr</button>
             </li>
+            <%i++;%>
         <%}); %>
     </ol>
+    
+    <script>
+        function dateWidget(e, s){
+            const el = document.getElementById('entry_id_' + e)
+            let sign = document.getElementById('y_m_sign_' + s)
+            var pos = el.getBoundingClientRect().y + 10
+            // console.log(pos);
+
+            if(pos >= 75){
+                sign.style.top = pos + "px";
+
+                // sign.style.opacity = "0.25";
+            }
+            else{
+                sign.style.top = "75px";
+                // sign.style.opacity = "1.0";
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            window.addEventListener('scroll', function() {
+                
+                dateWidget(0, 0);
+                dateWidget(3, 1);
+                dateWidget(4, 2);
+                dateWidget(5, 3);
+                
+            });
+        });
+    </script>
     
     
 </body>

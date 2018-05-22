@@ -1,3 +1,6 @@
+
+
+
 var objectCount = 0;
 
 // add text input for object

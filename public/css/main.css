@@ -34,18 +34,19 @@ button{
 }
 
 /*------------- entry ----------------*/
-.entries-list{
+.entry-list{
     margin: 10px auto;
     width: 100vw;
     box-sizing: border-box;
     padding: 40px;
     max-width: 860px;
 }
-.entries-list ol{
-    font-family: 'Raleway', sans-serif;
+.entry-list ol{
+    font-family: Helvetica, sans-serif;
+    font-weight: 300;
 }
 
-.entries-list > li{
+.entry-list > li{
     border-radius: 2px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     overflow: hidden;
@@ -60,7 +61,9 @@ button{
 }
 
 h1, h3, h4{
-    font-family: 'Raleway', sans-serif;
+    /* font-family: 'Raleway', sans-serif; */
+    font-family: Helvetica, sans-serif;
+    font-weight: 300;
 
 }
 
@@ -74,7 +77,7 @@ h1{
     font-style: italic;
 }
 
-.entries-list button{
+.entry-list button{
     border: none;
     color: #bbb;
     background-color: white;
@@ -86,6 +89,27 @@ h1{
     transition: all 0.25s;
 }
 
-.entries-list > li:hover  button{
+.entry-list > li:hover  button{
     color: black;
+}
+
+/*---------- date sign widget -----------------*/
+
+.year-month-sign{
+    background-color: red;
+    width: 100px;
+    height: 25px;
+    padding: 0;
+    border-radius: 2px;
+    position: fixed;
+    top: 100vh;
+    left: 20px;
+}
+
+.year-month-sign h1{
+    font-size: 16px;
+    padding: 5px;
+    text-align: center;
+    color: white;
+    margin: 0;
 }

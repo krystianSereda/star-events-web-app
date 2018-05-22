@@ -107,7 +107,11 @@ app.get("/", (req, res) => {
         var jsonR = []
         
         results.forEach(elem => {
-            
+            // const datedList = elem.EventDate.toLocaleDateString().split('-');
+            // datedList.forEach(e => {
+            //     console.log(e);
+                
+            // })
             var entry = {
                 EventDate: elem.EventDate.toLocaleDateString(),
                 EventLoc: elem.EventLoc,
