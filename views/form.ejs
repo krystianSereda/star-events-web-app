@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <!-- script TODO: Browserify -->
+    <script src="./js/main.js"></script>
+    
+    <!-- stylesheet TODO: Less -->
+    <link rel="stylesheet" href="./css/main.css">
+    <title>Termin adder</title>
+</head>
+<body>
+    <h1>TERMIN</h1>
+    <form action="/add_event" method="POST">
+        <input type="text" name="event_date" placeholder="Event date">
+        <input type="text" name="event_loc" placeholder="Event loc">
+        <div class="objects-container" id="obj_container">
+            <input type="text" name="event_obj0" placeholder="Event object 1">
+        </div>
+        <input type="button" value="add object" onclick="addObject();">
+        <input type="button" value="remove object" onclick="removeObject();">
+        <div class="button-container">
+            <button>Submit</button>
+        </div>
+    </form>
+    
+</body>
+</html>

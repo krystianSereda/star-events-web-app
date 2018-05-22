@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/main.css">
+    <link href="https://fonts.googleapis.com/css?family=Raleway:300,400" rel="stylesheet">
+    <title>Entries</title>
+</head>
+<body>
+    <h1>Entries</h1>
+    <ol class="entries-list">
+        <%jsonResults.forEach(elem => {%>
+            <li>
+                <div class="entry-title">
+                    <h3><%= elem.EventDate %></h4>
+                    <h3><%= elem.EventLoc %></h4>
+                </div>
+                <% if(elem.Objects){%>
+                    <ol>
+                        <% elem.Objects.split(',').forEach( el => { %>
+                            <li>
+                                <h4><%= el %></h4>
+                            </li>
+                        <% }); %>
+                    </ol>
+                    
+                <% } else {%>
+                    <h4 class="no-objects">Keine Objekte</h4>
+                <% } %>
+                <button onclick="console.log('mehr')">mehr</button>
+            </li>
+        <%}); %>
+    </ol>
+    
+    
+</body>
+</html>
