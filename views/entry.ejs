@@ -3,13 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./less/main.css">
+    <link rel="stylesheet" href="./css/main.css">
     <script src="./js/main.js"></script>
+    <script src="./js/page-manager.js"></script>
     <title>Entries</title>
 </head>
 <body>
     <h1>entries</h1>
-    <ol class="entry-list">
+    <div class="page-interaction-container">
+        <button onclick="handlePageButton(false)">-</button>
+
+        <h3 id="page_status">numero</h3>
+
+        <!-- <button onclick="checkHeight()">+</button> -->
+        <button onclick="handlePageButton(true)">+</button>
+    </div>
+    <ol class="entry-list" id="list">
         <%var i = 0;%>
         <%jsonResults.forEach(elem => {%>
             <li class="fade-in" id=<%="entry_id_" + i %>>
