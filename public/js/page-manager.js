@@ -46,6 +46,7 @@ function pageStatus(){
 
 // display the items that fit on the window, without scrolling
 function checkHeight(){
+    
     var winHei = window.innerHeight;
     // the header has a height of 37px 
     // padding top in the list is 40px, margin is 10px

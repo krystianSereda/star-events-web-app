@@ -2,6 +2,7 @@
 body {
   padding: 0;
   margin: 0;
+  position: fixed;
 }
 form {
   /* border: 1px solid red; */
@@ -28,12 +29,41 @@ input[type=button] {
 button {
   margin: 10px;
 }
+
+.new_b, .los_b{
+  position: fixed;
+  top: 20px;
+
+  font-family: Helvetica, sans-serif;
+  font-weight: lighter;
+  padding: 5px;
+  cursor: pointer;
+  border: none;
+  font-size: 14px;
+
+  color: white;
+  border-radius: 2px;
+  letter-spacing: 1px;
+}
+
+.new_b{
+  left: 40vw;
+  background-color: #0068df;
+}
+
+.los_b{
+  right: 10px;
+  background-color: crimson;
+  display: none;
+}
+
 .entry-list {
   margin: 10px 0;
   width: 50vw;
   box-sizing: border-box;
   padding: 40px 10px;
   max-width: 860px;
+  /* position: fixed; */
 }
 .entry-list ol {
   font-family: Helvetica, sans-serif;
@@ -164,7 +194,16 @@ h1 {
   background-color: #64a304;
   color: white;
   border-radius: 2px;
-  margin-right: 50px;
+  margin-right: 20px;
+  letter-spacing: 1px;
+}
+
+.cancel-button {
+  float: right;
+  background-color: #f51313;
+  color: white;
+  border-radius: 2px;
+  margin-right: 20px;
   letter-spacing: 1px;
 }
 .extra-space {

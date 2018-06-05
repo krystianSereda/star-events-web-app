@@ -8,7 +8,9 @@ app.use(express.static('./public'))
 
 // decode post form
 // it returns the information as json
-app.use(bodyparser.urlencoded({urlencoded: false, extended: true}))
+app.use(bodyparser.urlencoded({
+    extended: true
+}))
 app.use(bodyparser.json())
 
 // renders the ejs templates
@@ -28,6 +30,141 @@ function getConnection(){
     })
 }
 
+// REST delete
+app.delete("/delete", (req, res) => {
+    console.log("handling delete...");
+    const b_response = req.body
+
+    const id = b_response.id
+
+    const sql = getConnection()
+
+    const deleteQ = "DELETE FROM event_objects WHERE EventId=?"
+
+    sql.query(deleteQ, [id], (err, results, fields) => {
+        if(err){
+            console.log(err);
+            res.sendStatus(500)
+            res.end()
+            return
+        }
+        const delteEntry = "DELETE FROM event_entries WHERE EventId=?"
+
+        sql.query(delteEntry, [id], (err, results, fields) => {
+            if(err){
+                console.log(err);
+                res.sendStatus(500)
+                res.end()
+                return
+            }
+            res.json({msg: "deleted"})
+        })
+        
+    })
+    
+})
+
+// REST get
+app.get("/entry", (req, res) => {
+    console.log("handling get...");
+    
+    const sql = getConnection()
+
+
+    let query = "SELECT e.EventDate, e.EventLoc, e.EventId, (SELECT GROUP_CONCAT(o.Description) "
+            + " FROM event_objects o WHERE e.EventId = o.EventId) AS Objects"
+            + " FROM event_entries e"
+            + " ORDER BY e.EventDate";
+    
+    sql.query(query, (err, results, fields) => {
+        if(err){
+            console.log(err);
+            res.sendStatus(500)
+            res.end()
+            return
+        }
+
+        var jsonR = []
+        
+        results.forEach(elem => {
+            var entry = {
+                EventId: elem.EventId,
+                EventDate: elem.EventDate.toLocaleDateString(),
+                EventLoc: elem.EventLoc,
+                Objects: elem.Objects
+            }
+            jsonR.push(entry)
+        })
+        
+        res.json(jsonR)
+    })
+})
+
+// REST edit
+app.put("/edit_event", (req, res) => {
+    console.log('handling put...');
+    const b_response = req.body
+    
+    
+    const date = b_response.event_date
+    const loc = b_response.event_loc
+    const id = b_response.id
+
+    var listedObjs = []
+
+    Object.entries(b_response).forEach(
+        ([key, value]) => {
+            if(key.includes('event_obj')){
+                listedObjs.push(value)
+            }
+        }
+    );
+
+    // update sql row
+    const sql = getConnection()
+
+    // edit event entry
+    const editQ = "UPDATE event_entries SET EventDate=?, EventLoc=? WHERE EventId=?";
+    sql.query(editQ, [date, loc, id], (err, results, fields) => {
+        if(err){
+            console.log(err);
+            res.sendStatus(500)
+            res.end()
+            return
+        }
+
+        // delete all event objects with given event id 
+        const deleteQ = "DELETE FROM event_objects WHERE EventId=?";
+        sql.query(deleteQ, [id], (err, results, fields) => {
+            if(err){
+                console.log(err);
+                res.sendStatus(500)
+                res.end()
+                return
+            }
+            // create new objects
+            const objsQ = "INSERT INTO event_objects (EventId, Description) VALUES (?, ?)";
+
+            listedObjs.forEach( elem => {
+                sql.query(objsQ, [id, elem], (err, results, fields) => {
+                    if(err){
+                        console.log(err);
+                        res.sendStatus(500)
+                        res.end()
+                        return
+                    }
+                    console.log('id of inserted obj: ' + results.insertId)
+                    
+                })
+            })
+            res.json({msg: "edited"})
+
+        })
+    })
+
+ 
+})
+
 // handles the information from the form
 // --> uses POST method
 app.post("/add_event", (req, res) => {
@@ -42,7 +179,6 @@ app.post("/add_event", (req, res) => {
     Object.entries(b_response).forEach(
         ([key, value]) => {
             if(key.includes('event_obj')){
-                // console.log(key);
                 listedObjs.push(value)
             }
         }
@@ -51,6 +187,7 @@ app.post("/add_event", (req, res) => {
 
     const sql = getConnection()
     const qry = "INSERT INTO event_entries (EventDate, EventLoc) VALUES (?, ?)"
+    var id = -1;
 
     sql.query(qry, [date, loc], (err, results, fields) => {
         if(err){
@@ -59,7 +196,7 @@ app.post("/add_event", (req, res) => {
             res.end()
             return
         }
-        const id = results.insertId;
+        id = results.insertId;
         console.log('id of inserted ety: ' + id)
 
         const qry2 = "INSERT INTO event_objects (EventId, Description) VALUES (?, ?)"
@@ -76,22 +213,18 @@ app.post("/add_event", (req, res) => {
             })
         })
 
+        res.json({msg: "added", ID: id})
     })
-    res.redirect("/")
+ 
+    
 })
-
-// return form
-app.get("/form", (req, res) => {
-    res.render("form")
-})
-
 
 // returns all the event entries and their objects
 app.get("/", (req, res) => {
-    console.log('Api request for entry');
+    console.log('landing page...');
     const sql = getConnection()
 
-    let query = "SELECT e.EventDate, e.EventLoc, (SELECT GROUP_CONCAT(o.Description) "
+    let query = "SELECT e.EventDate, e.EventLoc, e.EventId, (SELECT GROUP_CONCAT(o.Description) "
             + " FROM event_objects o WHERE e.EventId = o.EventId) AS Objects"
             + " FROM event_entries e"
             + " ORDER BY e.EventDate";
@@ -107,12 +240,8 @@ app.get("/", (req, res) => {
         var jsonR = []
         
         results.forEach(elem => {
-            // const datedList = elem.EventDate.toLocaleDateString().split('-');
-            // datedList.forEach(e => {
-            //     console.log(e);
-                
-            // })
             var entry = {
+                EventId: elem.EventId,
                 EventDate: elem.EventDate.toLocaleDateString(),
                 EventLoc: elem.EventLoc,
                 Objects: elem.Objects

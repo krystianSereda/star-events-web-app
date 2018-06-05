@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./css/main.css">
-    <script src="./js/main.js"></script>
     <script src="./js/page-manager.js"></script>
+    <script src="./js/editor.js"></script>
     <title>Entries</title>
 </head>
 <body>
     <h1>entries</h1>
+    <button onclick="handleNewEntry()" class="new_b">Neue Entry</button>
     <div class="page-interaction-container">
         <button onclick="handlePageButton(false)">-</button>
 
@@ -19,12 +20,11 @@
         <button onclick="handlePageButton(true)">+</button>
     </div>
     <ol class="entry-list" id="list">
-        <%var i = 0;%>
         <%jsonResults.forEach(elem => {%>
-            <li class="fade-in" id=<%="entry_id_" + i %>>
+            <li class="fade-in" id=<%="entry_id_" + elem.EventId %>>
                 <div class="entry-title">
-                    <h3><%= elem.EventDate %></h4>
-                    <h3><%= elem.EventLoc %></h4>
+                    <h3><%= elem.EventDate %></h3>
+                    <h3><%= elem.EventLoc %></h3>
                 </div>
                 <% if(elem.Objects){%>
                     <ol>
@@ -38,25 +38,27 @@
                 <% } else {%>
                     <h4 class="no-objects">Keine Objekte</h4>
                 <% } %>
-                <button onclick=<%="handleEditButtonPressed('entry_id_" + i + "')"%>>mehr</button>
+                <button onclick=<%="handleEditButtonPressed('entry_id_" + elem.EventId + "')"%>>mehr</button>
             </li>
-            <%i++;%>
         <%}); %>
     </ol>
 
     <div class="entry-editor">
+        <button onclick="handleDeleteEntry()" class="los_b" id="los_b">Entry Löschen</button>
         <div class="editor-map-container">
             <h1>map</h1>
         </div>
         <div class="editor-input-container">
             <input type="text" placeholder="Datum" id="editor_date" disabled>
             <input type="text" placeholder="Ort" id="editor_place" disabled>
+            <input type="hidden" id="editor_id">
             <h3>Objekte</h3>
             <div class="editor-object-container" id="editor_objects">
                 <input type="text" disabled>
             </div>
             <button id="add_b" class="add-button" onclick="handleAddObjectPressed()" disabled>+</button>
             <button id="del_b" class="del-button" onclick="handleDeleteObjectPressed()" disabled>-</button>
+            <button id="can_b" class="cancel-button" onclick="handleCancelEditPressed()" disabled>abbrechen</button>
             <button id="end_b" class="end-button" onclick="handleSaveEditPressed()" disabled>fertig</button>
             <div class="extra-space"></div>
         </div>
