@@ -19,6 +19,9 @@ app.set("view engine", "ejs")
 // port for the app to be hosted to
 const prt = 8080
 
+
+/**************************************** functions **********************************************/
+
 // returns a connection to the mysql database
 function getConnection(){
     return mysql.createConnection({
@@ -30,13 +33,86 @@ function getConnection(){
     })
 }
 
-// REST delete
-app.delete("/delete", (req, res) => {
-    console.log("handling delete...");
-    const b_response = req.body
+// gets all the data ordered by date 
+// grouping the event objects by event id
+// sends the json response of renders the template
+function jsonGet(res, render=false) {
+    const sql = getConnection()
 
-    const id = b_response.id
 
+    let query = "SELECT e.EventDate, e.EventLoc, e.EventId, (SELECT GROUP_CONCAT(o.Description) "
+            + " FROM event_objects o WHERE e.EventId = o.EventId) AS Objects"
+            + " FROM event_entries e"
+            + " ORDER BY e.EventDate";
+    
+    sql.query(query, (err, results, fields) => {
+        if(err){
+            console.log(err);
+            res.sendStatus(500)
+            res.end()
+            return
+        }
+
+        var jsonR = []
+        
+        results.forEach(elem => {
+            var entry = {
+                EventId: elem.EventId,
+                EventDate: elem.EventDate.toLocaleDateString(),
+                EventLoc: elem.EventLoc,
+                Objects: elem.Objects
+            }
+            jsonR.push(entry)
+        })
+
+        if(!render){
+            res.json(jsonR)
+        }
+        else{
+            res.render("entry", {
+                jsonResults: jsonR
+            })
+        }
+        
+    })
+}
+
+// add a new event entry
+function addEntry(res, date, loc, listedObjs){
+    const sql = getConnection()
+    const qry = "INSERT INTO event_entries (EventDate, EventLoc) VALUES (?, ?)"
+    var id = -1;
+
+    sql.query(qry, [date, loc], (err, results, fields) => {
+        if(err){
+            console.log(err);
+            res.sendStatus(500)
+            res.end()
+            return
+        }
+        id = results.insertId;
+
+        const qry2 = "INSERT INTO event_objects (EventId, Description) VALUES (?, ?)"
+
+        listedObjs.forEach( elem => {
+            sql.query(qry2, [id, elem], (err, results, fields) => {
+                if(err){
+                    console.log(err);
+                    res.sendStatus(500)
+                    res.end()
+                    return
+                }
+                console.log('id of inserted obj: ' + results.insertId)
+            })
+        })
+
+        res.json({msg: "added", ID: id})
+    })
+}
+
+// delete an event entry and its corresponding objects
+// given an id
+function deleteEntry(res, id){
     const sql = getConnection()
 
     const deleteQ = "DELETE FROM event_objects WHERE EventId=?"
@@ -61,46 +137,73 @@ app.delete("/delete", (req, res) => {
         })
         
     })
+}
+
+// edit an entry given the attributes and an id
+function editEntry(res, id, date, loc, listedObjs) {
+     // update sql row
+     const sql = getConnection()
+
+     // edit event entry
+     const editQ = "UPDATE event_entries SET EventDate=?, EventLoc=? WHERE EventId=?";
+     sql.query(editQ, [date, loc, id], (err, results, fields) => {
+         if(err){
+             console.log(err);
+             res.sendStatus(500)
+             res.end()
+             return
+         }
+ 
+         // delete all event objects with given event id 
+         const deleteQ = "DELETE FROM event_objects WHERE EventId=?";
+         sql.query(deleteQ, [id], (err, results, fields) => {
+             if(err){
+                 console.log(err);
+                 res.sendStatus(500)
+                 res.end()
+                 return
+             }
+             // create new objects
+             const objsQ = "INSERT INTO event_objects (EventId, Description) VALUES (?, ?)";
+ 
+             listedObjs.forEach( elem => {
+                 sql.query(objsQ, [id, elem], (err, results, fields) => {
+                     if(err){
+                         console.log(err);
+                         res.sendStatus(500)
+                         res.end()
+                         return
+                     }
+                     console.log('id of inserted obj: ' + results.insertId)
+                     
+                 })
+             })
+             res.json({msg: "edited"})
+         })
+     })
+}
+
+/**************************************** routes **********************************************/
+
+// REST delete
+app.delete("/delete", (req, res) => {
+    console.log("handling delete...");
+    const b_response = req.body
+
+    const id = b_response.id
+    deleteEntry(res, id)
     
 })
 
 // REST get
 app.get("/entry", (req, res) => {
     console.log("handling get...");
-    
-    const sql = getConnection()
 
-
-    let query = "SELECT e.EventDate, e.EventLoc, e.EventId, (SELECT GROUP_CONCAT(o.Description) "
-            + " FROM event_objects o WHERE e.EventId = o.EventId) AS Objects"
-            + " FROM event_entries e"
-            + " ORDER BY e.EventDate";
-    
-    sql.query(query, (err, results, fields) => {
-        if(err){
-            console.log(err);
-            res.sendStatus(500)
-            res.end()
-            return
-        }
-
-        var jsonR = []
-        
-        results.forEach(elem => {
-            var entry = {
-                EventId: elem.EventId,
-                EventDate: elem.EventDate.toLocaleDateString(),
-                EventLoc: elem.EventLoc,
-                Objects: elem.Objects
-            }
-            jsonR.push(entry)
-        })
-        
-        res.json(jsonR)
-    })
+    // sql query => json response
+    jsonGet(res)
 })
 
-// REST edit
+// REST put
 app.put("/edit_event", (req, res) => {
     console.log('handling put...');
     const b_response = req.body
@@ -120,53 +223,11 @@ app.put("/edit_event", (req, res) => {
         }
     );
 
-    // update sql row
-    const sql = getConnection()
-
-    // edit event entry
-    const editQ = "UPDATE event_entries SET EventDate=?, EventLoc=? WHERE EventId=?";
-    sql.query(editQ, [date, loc, id], (err, results, fields) => {
-        if(err){
-            console.log(err);
-            res.sendStatus(500)
-            res.end()
-            return
-        }
-
-        // delete all event objects with given event id 
-        const deleteQ = "DELETE FROM event_objects WHERE EventId=?";
-        sql.query(deleteQ, [id], (err, results, fields) => {
-            if(err){
-                console.log(err);
-                res.sendStatus(500)
-                res.end()
-                return
-            }
-            // create new objects
-            const objsQ = "INSERT INTO event_objects (EventId, Description) VALUES (?, ?)";
-
-            listedObjs.forEach( elem => {
-                sql.query(objsQ, [id, elem], (err, results, fields) => {
-                    if(err){
-                        console.log(err);
-                        res.sendStatus(500)
-                        res.end()
-                        return
-                    }
-                    console.log('id of inserted obj: ' + results.insertId)
-                    
-                })
-            })
-            res.json({msg: "edited"})
-
-        })
-    })
-
+    editEntry(res, id, date, loc, listedObjs)
  
 })
 
-// handles the information from the form
-// --> uses POST method
+// REST post
 app.post("/add_event", (req, res) => {
     console.log('handling post...');
     const b_response = req.body
@@ -176,6 +237,7 @@ app.post("/add_event", (req, res) => {
 
     var listedObjs = []
 
+    // get all event objects
     Object.entries(b_response).forEach(
         ([key, value]) => {
             if(key.includes('event_obj')){
@@ -184,77 +246,17 @@ app.post("/add_event", (req, res) => {
         }
     );
 
-
-    const sql = getConnection()
-    const qry = "INSERT INTO event_entries (EventDate, EventLoc) VALUES (?, ?)"
-    var id = -1;
-
-    sql.query(qry, [date, loc], (err, results, fields) => {
-        if(err){
-            console.log(err);
-            res.sendStatus(500)
-            res.end()
-            return
-        }
-        id = results.insertId;
-        console.log('id of inserted ety: ' + id)
-
-        const qry2 = "INSERT INTO event_objects (EventId, Description) VALUES (?, ?)"
-
-        listedObjs.forEach( elem => {
-            sql.query(qry2, [id, elem], (err, results, fields) => {
-                if(err){
-                    console.log(err);
-                    res.sendStatus(500)
-                    res.end()
-                    return
-                }
-                console.log('id of inserted obj: ' + results.insertId)
-            })
-        })
-
-        res.json({msg: "added", ID: id})
-    })
- 
-    
+    addEntry(res, date, loc, listedObjs)
 })
 
 // returns all the event entries and their objects
 app.get("/", (req, res) => {
     console.log('landing page...');
-    const sql = getConnection()
 
-    let query = "SELECT e.EventDate, e.EventLoc, e.EventId, (SELECT GROUP_CONCAT(o.Description) "
-            + " FROM event_objects o WHERE e.EventId = o.EventId) AS Objects"
-            + " FROM event_entries e"
-            + " ORDER BY e.EventDate";
-    
-    sql.query(query, (err, results, fields) => {
-        if(err){
-            console.log(err);
-            res.sendStatus(500)
-            res.end()
-            return
-        }
-
-        var jsonR = []
-        
-        results.forEach(elem => {
-            var entry = {
-                EventId: elem.EventId,
-                EventDate: elem.EventDate.toLocaleDateString(),
-                EventLoc: elem.EventLoc,
-                Objects: elem.Objects
-            }
-            jsonR.push(entry)
-        })
-        
-        res.render("entry", {
-            jsonResults: jsonR
-        })
-    })
+    jsonGet(res, render=true)
 })
 
+// start server
 app.listen(prt, () => {
     console.log('Running app in port ' + prt + '...');
 })

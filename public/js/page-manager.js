@@ -54,7 +54,7 @@ function checkHeight(){
 
     const listItems = document.getElementById('list').children;
     const itemsNum = listItems.length;
-
+    
     var itemsHeight = 0;
     var pageNum = 1;
 
@@ -70,6 +70,10 @@ function checkHeight(){
             itemsHeight = h;
             pageNum++;
         }
+        else if (i == itemsNum - 1){
+            fillPages(pageNum, i);
+            pageNum++;
+        }
 
     }
 
@@ -78,6 +82,7 @@ function checkHeight(){
 
     // show number of pages and current one
     pageStatus();
+    
 }
 // handle buttons next page and previous page
 function handlePageButton(isPlus){
