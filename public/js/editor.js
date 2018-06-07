@@ -1,90 +1,37 @@
+
 var editObjectCount = 1;
 
-// fill the forms in the editor
-function handleEditButtonPressed(id){
+/*********************************** functions **********************************/
 
-    // get the info
-    var elem = document.getElementById(id)
-    const objNum = elem.children[1].childElementCount
+// returns the element (less redundancy)
+function DOM(id){
+    return document.getElementById(id);
+}
 
-    const in_date = elem.children[0].children[0].innerHTML;
-    const in_place = elem.children[0].children[1].innerHTML;
-
-    // get the inputs
-    var date = document.getElementById('editor_date');
-    var plac = document.getElementById('editor_place');
-    var objs = document.getElementById('editor_objects');
-    
-    document.getElementById('editor_id').value = "" + id;
-
-    // delete button
-    document.getElementById('los_b').style.display = "block";
-    document.getElementById('los_b').classList.add("fade-in")
-
-    // enable them
-    date.disabled = false;
-    plac.disabled = false;
-    document.getElementById('add_b').disabled = false;
-    document.getElementById('del_b').disabled = false;
-    document.getElementById('end_b').disabled = false;
-    document.getElementById('can_b').disabled = false;
-
-    // set the info
-    date.value = in_date;
-    plac.value = in_place;
-
-    var inputs = "";
-    const inp = '<input type="text"';
-
-    if(objNum > 0){
-        for(var i = 0; i < objNum; i++){
-            const v = elem.children[1].children[i].children[0].innerHTML;
-            const val = inp + 'value="' + v +'" id="event_obj'+ (i +1) + '">';
-            inputs += val;
-        }
-
-        objs.innerHTML = inputs;
+// enable / disable the editor input fields, and optionally
+// fill them with a given value
+function toggleEditorInputs(disable, inDate=null, inPlace=null){
+    var date = DOM('editor_date');
+    var plac = DOM('editor_place');
+    if(inDate != null){
+        date.value = inDate
     }
-    else{
-        objs.innerHTML = inp + 'id="event_obj1">';
+    if(inPlace != null){
+        plac.value = inPlace
     }
-    
-    editObjectCount = objNum;
+    date.disabled = disable;
+    plac.disabled = disable;
+    DOM('add_b').disabled = disable;
+    DOM('del_b').disabled = disable;
+    DOM('end_b').disabled = disable;
+    DOM('can_b').disabled = disable;
     
 }
 
-
-// editor add 1 object
-function handleAddObjectPressed(){
-    const children = document.getElementById('editor_objects').children.length;
-
-    var inputs = "";
-    const inp = '<input type="text"';
-
-    editObjectCount++;
-
-    for(var i = children; i < editObjectCount; i++){
-        inputs += inp + 'id="event_obj' + (i+1) + '">';
-    }
-    const old = document.getElementById('editor_objects').innerHTML;
-    
-    document.getElementById('editor_objects').innerHTML = old + inputs;
-}
-
-// editor delete 1 object
-function handleDeleteObjectPressed(){
-    if (editObjectCount == 1){
-        document.getElementById('editor_objects').childNodes[0].value = "";
-        return
-    }
-    var events =  document.getElementById('editor_objects');
-    const lastchild = events.children.length - 1;
-    events.removeChild(events.children[lastchild]);
-    editObjectCount--;
-}
-
+// append an entry item to the entry list
+// given a json data object
 function appendListItem(data){
-    var list = document.getElementById('list')
+    var list = DOM('list')
     var listItem = document.createElement("li");
     listItem.classList.add("fade-in")
     listItem.id = "entry_id_" + data.EventId
@@ -115,9 +62,12 @@ function appendListItem(data){
 }
 
 // update the entry list
+// get all items from API and 
+// append each of them to the list
+// after that, recalculate the pages
 function updateList(){
     // empty out list
-    var list = document.getElementById('list')
+    var list = DOM('list')
     list.innerHTML = ""
 
     const data = fetch("/entry")
@@ -127,13 +77,44 @@ function updateList(){
         json.forEach(item => {
             appendListItem(item)
         })
+        // recalculate pages
         checkHeight()
     }).catch(error =>{
         console.log(error);
     });
 }
 
+
+
+// check the editor fields, 
+// returns true if it's good to go, else false
+function checkFields(){
+    // date
+    const dateval = DOM('editor_date').value;
+    var date = new Date(dateval)
+    const isDate = date.toString() != "Invalid Date"
+    
+    if(!dateval || dateval == "" || !isDate){
+        console.log('date');
+        
+        return false
+    }
+
+    // place
+    // for now, only check if its not empty
+    const locval = DOM("editor_place").value
+    if(!locval || locval == ""){
+        console.log('place');
+        
+        return false
+    }
+
+    return true
+}
+
+
 // send post request using fetch post
+// asynchronious await
 async function postData(data){
     // data is a json object
     const url = "/add_event";
@@ -150,8 +131,8 @@ async function postData(data){
         console.log(error);
     })
 }
-
 // send post request using fetch put
+// asynchronious await
 async function putData(data){
     // data is a json object
     const url = "/edit_event";
@@ -171,6 +152,7 @@ async function putData(data){
 }
 
 // send delete request using fetch delete
+// asynchronious await
 async function deleteData(id){
     const url = "/delete"
     const response = await fetch(url, {
@@ -185,16 +167,95 @@ async function deleteData(id){
 }
 
 
+
+/*********************************** on click handlers **********************************/
+
+// 'mehr' button handlers
+// fill the forms in the editor
+function handleEditButtonPressed(id){
+
+    // get the info
+    var elem = DOM(id)
+    const objNum = elem.children[1].childElementCount
+
+    const in_date = elem.children[0].children[0].innerHTML;
+    const in_place = elem.children[0].children[1].innerHTML;
+
+    toggleEditorInputs(false, in_date, in_place)
+
+    var objs = DOM('editor_objects');
+
+    DOM('editor_id').value = "" + id;
+
+    // delete button
+    DOM('los_b').style.display = "block";
+    DOM('los_b').classList.add("fade-in")
+
+
+    var inputs = "";
+    const inp = '<input type="text"';
+
+    if(objNum > 0){
+        for(var i = 0; i < objNum; i++){
+            const v = elem.children[1].children[i].children[0].innerHTML;
+            const val = inp + 'value="' + v +'" id="event_obj'+ (i +1) + '">';
+            inputs += val;
+        }
+
+        objs.innerHTML = inputs;
+    }
+    else{
+        objs.innerHTML = inp + 'id="event_obj1">';
+    }
+    
+    editObjectCount = objNum;
+    
+}
+
+
+// editor add 1 object
+// to event object list
+function handleAddObjectPressed(){
+    const children = DOM('editor_objects').children.length;
+
+    editObjectCount++;
+
+    for(var i = children; i < editObjectCount; i++){
+        // inputs += inp + 'id="event_obj' + (i+1) + '">';
+        var input = document.createElement("input")
+        input.type = "text"
+        input.id = "event_obj" + (i+1)
+        DOM('editor_objects').appendChild(input)
+    }
+}
+
+// editor delete 1 object
+// from event object list
+function handleDeleteObjectPressed(){
+    if (editObjectCount == 1){
+        DOM('editor_objects').childNodes[0].value = "";
+        return
+    }
+    var events =  DOM('editor_objects');
+    const lastchild = events.children.length - 1;
+    events.removeChild(events.children[lastchild]);
+    editObjectCount--;
+}
+
+
 // check if the fields are properly filled
 // send the post request
 function handleSaveEditPressed(){
-    // TODO: check fields
+    // check the fields
+    if(!checkFields()){
+        alert("Fields incorrectly filled!")
+        return
+    }
 
-
-    var date = document.getElementById('editor_date');
-    var plac = document.getElementById('editor_place');
-    var objs = document.getElementById('editor_objects').childNodes;
-    const ID = document.getElementById('editor_id').value.split('_')[2];
+    var date = DOM('editor_date');
+    var plac = DOM('editor_place');
+    var objs = DOM('editor_objects').childNodes;
+    const ID = DOM('editor_id').value.split('_')[2];
     
     const data = {
         event_date: date.value,
@@ -202,18 +263,18 @@ function handleSaveEditPressed(){
         id: ID
     }
     objs.forEach(obj => {
-        data[obj.id] = obj.value;
+        // only add field objects
+        if(obj.value && obj.value != ""){
+            data[obj.id] = obj.value;
+        }
     })
 
-    // send data
-    
+    // put data
     // if the id is empty, then post data
     if(data.id){
-        
         putData(data);
     }
     else{
-        
         postData(data)
     }
     
@@ -222,49 +283,37 @@ function handleSaveEditPressed(){
 
 // set initial editor state
 function handleCancelEditPressed(){
-    var date = document.getElementById('editor_date');
-    var plac = document.getElementById('editor_place');
-    var objs = document.getElementById('editor_objects');
-    document.getElementById('editor_id').value = "";
-    date.disabled = true;
-    plac.disabled = true;
-    date.value = "";
-    plac.value = "";
-    document.getElementById('add_b').disabled = true;
-    document.getElementById('del_b').disabled = true;
-    document.getElementById('end_b').disabled = true;
-    document.getElementById('can_b').disabled = true;
+    var objs = DOM('editor_objects');
     objs.innerHTML = "<input type='text' disabled>";
+    
+    DOM('editor_id').value = "";
+
+    toggleEditorInputs(true, "", "")
+
     // delete button
-    document.getElementById('los_b').style.display = "none";
-    document.getElementById('los_b').classList.remove("fade-in")
+    DOM('los_b').style.display = "none";
+    DOM('los_b').classList.remove("fade-in")
 }
 
 // create a new entry
 function handleNewEntry(){
-    document.getElementById('los_b').style.display = "none";
-
-    var date = document.getElementById('editor_date');
-    var plac = document.getElementById('editor_place');
-    var objs = document.getElementById('editor_objects');
+    DOM('los_b').style.display = "none";
     
-    document.getElementById('editor_id').value = "";
+    var objs = DOM('editor_objects');
+    
+    objs.innerHTML = '<input type="text" id="event_obj1">';
+    
+    DOM('editor_id').value = "";
 
-    // enable them
-    date.disabled = false;
-    plac.disabled = false;
-    date.value = "";
-    plac.value = "";
-    document.getElementById('add_b').disabled = false;
-    document.getElementById('del_b').disabled = false;
-    document.getElementById('end_b').disabled = false;
-    document.getElementById('can_b').disabled = false;
+    toggleEditorInputs(false, "", "");
 
-    objs.innerHTML = '<input type="text" id="event_obj1">'
+    editObjectCount = 1;
+
 }
 
+// delete entry in the editor
 function handleDeleteEntry(){
-    const ID = document.getElementById('editor_id').value.split('_')[2];
+    const ID = DOM('editor_id').value.split('_')[2];
     if(ID){
         deleteData(ID)
     }
