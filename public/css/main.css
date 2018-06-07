@@ -55,12 +55,14 @@ button {
   color: white;
   border-radius: 2px;
   letter-spacing: 1px;
+
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
 }
 
 .new_b{
   right: calc(50vw + 20px);
   background-color: #0068df;
-  z-index: 100;
+  z-index: 200;
 }
 
 .los_b{

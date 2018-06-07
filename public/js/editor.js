@@ -149,7 +149,6 @@ function checkFields(){
             DOM("editor_month").classList.add('error-field')
             DOM("editor_year").classList.add('error-field')
             everythingGood = false
-            console.log(dateval);
             
         }
 
@@ -159,8 +158,6 @@ function checkFields(){
         DOM("editor_month").classList.add('error-field')
         DOM("editor_year").classList.add('error-field')
         everythingGood = false
-        console.log('t');
-        
     }
 
 
@@ -170,8 +167,6 @@ function checkFields(){
     if(!locval || locval == ""){
         DOM("editor_place").classList.add('error-field')
         everythingGood = false
-        console.log('w');
-        
     }
 
     return everythingGood
@@ -238,6 +233,7 @@ async function deleteData(id){
 // 'mehr' button handlers
 // fill the forms in the editor
 function handleEditButtonPressed(id){
+    handleCancelEditPressed();
 
     // get the info
     var elem = DOM(id)
@@ -371,6 +367,7 @@ function handleCancelEditPressed(){
 
 // create a new entry
 function handleNewEntry(){
+    handleCancelEditPressed();
     DOM('los_b').style.display = "none";
     
     var objs = DOM('editor_objects');
