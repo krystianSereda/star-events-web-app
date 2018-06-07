@@ -165,7 +165,10 @@ function editEntry(res, id, date, loc, listedObjs) {
              }
              // create new objects
              const objsQ = "INSERT INTO event_objects (EventId, Description) VALUES (?, ?)";
- 
+             
+
+             const objsNum = listedObjs.length
+             var iter = 0
              listedObjs.forEach( elem => {
                  sql.query(objsQ, [id, elem], (err, results, fields) => {
                      if(err){
@@ -174,11 +177,15 @@ function editEntry(res, id, date, loc, listedObjs) {
                          res.end()
                          return
                      }
-                     console.log('id of inserted obj: ' + results.insertId)
-                     
+                     // assure that after the last 
+                     // query returned a response 
+                     // then send the json response
+                     iter++;
+                     if(iter == objsNum){
+                        res.json({msg: "edited"})
+                     }
                  })
              })
-             res.json({msg: "edited"})
          })
      })
 }
