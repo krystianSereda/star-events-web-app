@@ -9,8 +9,8 @@
     <title>Entries</title>
 </head>
 <body>
-    <h1>entries</h1>
     <button onclick="handleNewEntry()" class="new_b">Neue Entry</button>
+    <h1>entries</h1>
     <div class="page-interaction-container">
         <button onclick="handlePageButton(false)">-</button>
 
@@ -44,12 +44,15 @@
     </ol>
 
     <div class="entry-editor">
+            
         <button onclick="handleDeleteEntry()" class="los_b" id="los_b">Entry Löschen</button>
         <div class="editor-map-container">
             <h1>map</h1>
         </div>
         <div class="editor-input-container">
-            <input type="text" placeholder="Datum" id="editor_date" disabled>
+            <input type="number" name="editor_day" id="editor_day" placeholder="tt" disabled min="1" max="31" onchange="checkMinMax(this)">
+            <input type="number" name="editor_month" id="editor_month" placeholder="mm" min="1" max="12"disabled onchange="checkMinMax(this)">
+            <input type="number" name="editor_year" id="editor_year" placeholder="jjjj" min="2018" max="2200" disabled onchange="checkMinMax(this)">
             <input type="text" placeholder="Ort" id="editor_place" disabled>
             <input type="hidden" id="editor_id">
             <h3>Objekte</h3>

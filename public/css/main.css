@@ -9,7 +9,7 @@ form {
   display: inline-block;
   width: 300px;
 }
-input[type=text] {
+input[type=text], input[type=number] {
   width: calc(100% - 10px);
   height: 40px;
   margin: 10px 0;
@@ -19,6 +19,12 @@ input[type=text] {
   box-sizing: border-box;
   padding: 5px;
 }
+
+input[type=number]{
+  width: 60px;
+  letter-spacing: 1px;
+}
+
 input[type=button] {
   cursor: pointer;
   margin: 10px;
@@ -28,6 +34,11 @@ input[type=button] {
 }
 button {
   margin: 10px;
+}
+
+.error-field{
+  border: 1px solid red;
+  background-color: pink;
 }
 
 .new_b, .los_b{
@@ -47,8 +58,9 @@ button {
 }
 
 .new_b{
-  left: 40vw;
+  right: calc(50vw + 20px);
   background-color: #0068df;
+  z-index: 100;
 }
 
 .los_b{
@@ -156,7 +168,7 @@ h1 {
   width: 280px;
   border: none;
 }
-.editor-input-container input[type=text]:disabled {
+.editor-input-container input[type=text]:disabled, input[type=number]:disabled {
   background-color: rgba(0, 0, 0, 0);
   border: 1px solid #bbb;
 }
