@@ -1,5 +1,5 @@
 // fill the page dictionary
-var currentPage = 1;
+var currentPage;
 var pages;
 function fillPages(pageNum, lastIndex){
     pages[pageNum] = lastIndex
@@ -12,7 +12,9 @@ function hideOtherPages(){
 
     var firstOfPage = -1;
     var lastOfPage = pages[currentPage];
-    if(pages[currentPage-1]){
+    
+    // if previous page exists
+    if(pages[currentPage-1] != null){
         firstOfPage = pages[currentPage-1] + 1
     }
     else{
@@ -20,7 +22,7 @@ function hideOtherPages(){
     }
 
     for(var i = 0; i < itemsNum; i++){
-        if (i < firstOfPage || i >lastOfPage){
+        if (i < firstOfPage || i > lastOfPage){
             items[i].style.display = "none";
         }
         else{
@@ -46,40 +48,40 @@ function pageStatus(){
 
 // display the items that fit on the window, without scrolling
 function checkHeight(){
+    // calc the window height to fit a maximal amount of items
+    const winHei = window.innerHeight - 140;
     
-    var winHei = window.innerHeight;
-    // the header has a height of 37px 
-    // padding top in the list is 40px, margin is 10px
-    winHei -= 100;
 
     const listItems = document.getElementById('list').children;
     const itemsNum = listItems.length;
-    
+
     var itemsHeight = 0;
     var pageNum = 1;
-
+    
+    currentPage = 1;
     pages = {};
+
     for(var i = 0; i < itemsNum; i++){
+        // show them all again, to be messured
+        listItems[i].style.display = "block";
         var h = listItems[i].offsetHeight;
         itemsHeight += h;
         
         // if the items height is bigger than the window
         // then asign them to a different page
-        if( itemsHeight > winHei ){
+        if(itemsHeight >= winHei){
             fillPages(pageNum, (i - 1));
             itemsHeight = h;
             pageNum++;
         }
-        else if (i == itemsNum - 1){
+        if (i == itemsNum - 1){
             fillPages(pageNum, i);
             pageNum++;
         }
 
     }
-
     // hide items after the last item of the page
     hideOtherPages();
-
     // show number of pages and current one
     pageStatus();
     
@@ -110,4 +112,13 @@ function handlePageButton(isPlus){
 window.onload = function (){
 
     checkHeight();
+}
+
+var resizer;
+window.onresize = function(){
+    clearTimeout(resizer)
+     resizer = this.setTimeout(() => {
+        checkHeight();
+    }, 200)
+
 }
