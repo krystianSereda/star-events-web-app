@@ -16,7 +16,6 @@
 
         <h3 id="page_status">numero</h3>
 
-        <!-- <button onclick="checkHeight()">+</button> -->
         <button onclick="handlePageButton(true)">+</button>
     </div>
     <ol class="entry-list" id="list">
@@ -46,14 +45,12 @@
     <div class="entry-editor">
             
         <button onclick="handleDeleteEntry()" class="los_b" id="los_b">Entry Löschen</button>
-        <div class="editor-map-container">
-            <h1>map</h1>
-        </div>
+        <div  class="editor-map-container" id="map"></div>
         <div class="editor-input-container">
             <input type="number" name="editor_day" id="editor_day" placeholder="tt" disabled min="1" max="31" onchange="checkMinMax(this)">
             <input type="number" name="editor_month" id="editor_month" placeholder="mm" min="1" max="12"disabled onchange="checkMinMax(this)">
             <input type="number" name="editor_year" id="editor_year" placeholder="jjjj" min="2018" max="2200" disabled onchange="checkMinMax(this)">
-            <input type="text" placeholder="Ort" id="editor_place" disabled>
+            <input type="text" placeholder="Ort" id="editor_place" onchange="doSearch(this.value)" disabled>
             <input type="hidden" id="editor_id">
             <h3>Objekte</h3>
             <div class="editor-object-container" id="editor_objects">
@@ -67,7 +64,108 @@
         </div>
     </div>
     
-   
+    <script>
+
+
+            // This example adds a search box to a map, using the Google Place Autocomplete
+            // feature. People can enter geographical searches. The search box will return a
+            // pick list containing a mix of places and predicted search terms.
+      
+            // This example requires the Places library. Include the libraries=places
+            // parameter when you first load the API. For example:
+            // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places"> 
+      
+            function initAutocomplete(shouldTrigger=false, query) {
+                var geocoder = new google.maps.Geocoder()
+                
+                // 49.7596_N_6.6439_E
+                var map = new google.maps.Map(document.getElementById('map'), {
+                center: {lat: 49.7596, lng: 6.6439},
+                zoom: 13,
+                mapTypeId: 'roadmap',
+                disableDefaultUI: true
+                });
+                
+                if (shouldTrigger){
+                    geocoder.geocode({'address': query}, function(results, status) {
+                        if (status === 'OK') {
+                        map.setCenter(results[0].geometry.location);
+                        } else {
+                        alert('Geocode was not successful for the following reason: ' + status);
+                        }
+                    });
+                }
+                
+                // Create the search box and link it to the UI element.
+                var input = document.getElementById('editor_place');
+                var searchBox = new google.maps.places.SearchBox(input);
+        
+                // Bias the SearchBox results towards current map's viewport.
+                map.addListener('bounds_changed', function() {
+                searchBox.setBounds(map.getBounds());
+                });
+        
+                var markers = [];
+                
+                // Listen for the event fired when the user selects a prediction and retrieve
+                // more details for that place.
+                searchBox.addListener('places_changed', function() {
+                var places = searchBox.getPlaces();
+        
+                if (places.length == 0) {
+                    return;
+                }
+        
+                // Clear out the old markers.
+                markers.forEach(function(marker) {
+                    marker.setMap(null);
+                });
+                markers = [];
+        
+                // For each place, get the icon, name and location.
+                var bounds = new google.maps.LatLngBounds();
+                places.forEach(function(place) {
+                    if (!place.geometry) {
+                    console.log("Returned place contains no geometry");
+                    return;
+                    }
+                    var icon = {
+                    url: place.icon,
+                    size: new google.maps.Size(71, 71),
+                    origin: new google.maps.Point(0, 0),
+                    anchor: new google.maps.Point(17, 34),
+                    scaledSize: new google.maps.Size(25, 25)
+                    };
+        
+                    // Create a marker for each place.
+                    markers.push(new google.maps.Marker({
+                    map: map,
+                    icon: icon,
+                    title: place.name,
+                    position: place.geometry.location
+                    }));
+        
+                    if (place.geometry.viewport) {
+                    // Only geocodes have viewport.
+                    bounds.union(place.geometry.viewport);
+                    } else {
+                    bounds.extend(place.geometry.location);
+                    }
+                });
+                map.fitBounds(bounds);
+                });
+            }
+
+            function doSearch(q){
+                if(q != ""){
+                // set map to saved value
+                initAutocomplete(true, q);
+                }
+            }   
+      
+          </script>
+          <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&language=de&libraries=places&callback=initAutocomplete"
+               async defer></script>
     
     
 </body>

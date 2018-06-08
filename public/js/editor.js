@@ -51,6 +51,7 @@ function toggleEditorInputs(disable, inDate=null, inPlace=null){
     }
     if(inPlace != null){
         plac.value = inPlace
+        plac.onchange()
     }
     day.disabled = disable;
     month.disabled = disable;
@@ -162,7 +163,7 @@ function checkFields(){
 
 
     // place
-    // for now, only check if its not empty
+    // only check if its not empty
     const locval = DOM("editor_place").value
     if(!locval || locval == ""){
         DOM("editor_place").classList.add('error-field')
@@ -233,7 +234,7 @@ async function deleteData(id){
 // 'mehr' button handlers
 // fill the forms in the editor
 function handleEditButtonPressed(id){
-    handleCancelEditPressed();
+    handleCancelEditPressed(true);
 
     // get the info
     var elem = DOM(id)
@@ -346,13 +347,15 @@ function handleSaveEditPressed(){
 }
 
 // set initial editor state
-function handleCancelEditPressed(){
+function handleCancelEditPressed(notoggle=false){
     var objs = DOM('editor_objects');
     objs.innerHTML = "<input type='text' disabled>";
     
     DOM('editor_id').value = "";
 
-    toggleEditorInputs(true, "", "")
+    if(!notoggle){
+        toggleEditorInputs(true, "", "")
+    }
 
     // delete button
     DOM('los_b').style.display = "none";
