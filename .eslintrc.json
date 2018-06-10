@@ -1,0 +1,25 @@
+{
+    "plugins": [
+        "fetch"
+    ],
+    "extends": "standard",
+    "rules": {
+        "indent": 0,
+        "semi": 0,
+        "no-unused-vars": 0,
+        "no-trailing-spaces": 0,
+        "no-useless-return": 1,
+        "space-infix-ops": 0,
+        "quotes": 0,
+        "padded-blocks": 0,
+        "operator-linebreak": 0,
+        "no-useless-escape": 0, 
+        "no-undef": 1,
+        "spaced-comment": 1
+    },
+    "env": {
+        "browser": true,
+        "node": true
+      }
+    
+}

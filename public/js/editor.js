@@ -1,58 +1,58 @@
+// const pageManager = require('./page-manager.js')
 
 var editObjectCount = 1;
 
-/*********************************** functions **********************************/
+/** ********************************* functions **********************************/
 
 // returns the element (less redundancy)
-function DOM(id){
+function DOM (id) {
     return document.getElementById(id);
 }
 
 // check for min max values for dates
-function checkMinMax(elem){
+function checkMinMax (elem) {
     const max = parseInt(elem.max)
     const min = parseInt(elem.min)
     
-    if(elem.value <= max && elem.value >= min){
+    if (elem.value <= max && elem.value >= min) {
         return
     }
 
-    if(elem.value < min){
+    if (elem.value < min) {
         elem.value = min
         return
     }
     
-    if(elem.value > max){
+    if (elem.value > max) {
         elem.value = max
-        return
     }
 }
 
 // enable / disable the editor input fields, and optionally
 // fill them with a given value
-function toggleEditorInputs(disable, inDate=null, inPlace=null){
+function toggleEditorInputs (disable, inDate=null, inPlace=null) {
     var day = DOM('editor_day')
     var month = DOM('editor_month')
     var year = DOM('editor_year')
 
     var plac = DOM('editor_place');
-    if(inDate != null){
-        if(inDate != ""){
+    if (inDate !== null) {
+        if (inDate !== "") {
             const date = inDate.split('-')
             day.value = parseInt(date[2])
             month.value = parseInt(date[1])
             year.value = parseInt(date[0])
-        }
-        else{
+        } else {
             day.value = ""
             month.value = ""
             year.value = ""
         }
     }
-    if(inPlace != null){
+    if (inPlace != null) {
         plac.value = inPlace
         plac.onchange()
     }
+
     day.disabled = disable;
     month.disabled = disable;
     year.disabled = disable;
@@ -66,7 +66,7 @@ function toggleEditorInputs(disable, inDate=null, inPlace=null){
 
 // append an entry item to the entry list
 // given a json data object
-function appendListItem(data){
+function appendListItem (data) {
     var list = DOM('list')
     var listItem = document.createElement("li");
     listItem.classList.add("fade-in")
@@ -76,7 +76,7 @@ function appendListItem(data){
                     +'<h3>' + data.EventLoc + '</h3>'
                     +'</div>'
     var body = "";
-    if(data.Objects){
+    if (data.Objects) {
         body += "<ol>"
         data.Objects.split(',').forEach(obj => {
             body += "<li>"
@@ -84,8 +84,7 @@ function appendListItem(data){
             body += "</li>"
         })
         body += "</ol>"
-    }
-    else{
+    } else {
         body += '<h4 class="no-objects">Keine Objekte</h4>'
     }
     const button = "<button onclick=\""
@@ -101,7 +100,7 @@ function appendListItem(data){
 // get all items from API and 
 // append each of them to the list
 // after that, recalculate the pages
-function updateList(){
+function updateList () {
     // empty out list
     var list = DOM('list')
     list.innerHTML = ""
@@ -114,17 +113,16 @@ function updateList(){
             appendListItem(item)
         })
         // recalculate pages
+        // pageManager.checkHeight()
         checkHeight()
-    }).catch(error =>{
+    }).catch(error => {
         console.log(error);
     });
 }
 
-
-
 // check the editor fields, 
 // returns true if it's good to go, else false
-function checkFields(){
+function checkFields () {
     var everythingGood = true
 
     // date
@@ -132,10 +130,10 @@ function checkFields(){
     const month = DOM('editor_month').value
     const day = DOM('editor_day').value
 
-    if(year != null && month != null && day != null){
+    if (year != null && month != null && day != null) {
         // padding with 0's
-        m = month.toString().length < 2 ? "0" + month : month
-        d = day.toString().length < 2 ? "0" + day : day
+        var m = month.toString().length < 2 ? "0" + month : month
+        var d = day.toString().length < 2 ? "0" + day : day
 
         var dateval = ""
         dateval += "" + year
@@ -143,9 +141,9 @@ function checkFields(){
         dateval += "-" + d
 
         var date = new Date(dateval)
-        const isDate = date.toString() != "Invalid Date"
+        const isDate = date.toString() !== "Invalid Date"
 
-        if(!isDate){
+        if (!isDate) {
             DOM("editor_day").classList.add('error-field')
             DOM("editor_month").classList.add('error-field')
             DOM("editor_year").classList.add('error-field')
@@ -153,19 +151,17 @@ function checkFields(){
             
         }
 
-    }
-    else{
+    } else {
         DOM("editor_day").classList.add('error-field')
         DOM("editor_month").classList.add('error-field')
         DOM("editor_year").classList.add('error-field')
         everythingGood = false
     }
 
-
     // place
     // only check if its not empty
     const locval = DOM("editor_place").value
-    if(!locval || locval == ""){
+    if (!locval || locval === "") {
         DOM("editor_place").classList.add('error-field')
         everythingGood = false
     }
@@ -173,10 +169,9 @@ function checkFields(){
     return everythingGood
 }
 
-
 // send post request using fetch post
 // asynchronious await
-async function postData(data){
+async function postData (data) {
     // data is a json object
     const url = "/add_event";
     const response = await fetch(url, {
@@ -185,7 +180,7 @@ async function postData(data){
         headers: {"Content-Type": "application/json"}
     }).then(response => { 
         return response.json()
-    }).then(json =>{
+    }).then(json => {
         // console.log(json);
         updateList()
     }).catch(error => {
@@ -194,7 +189,7 @@ async function postData(data){
 }
 // send post request using fetch put
 // asynchronious await
-async function putData(data){
+async function putData (data) {
     // data is a json object
     const url = "/edit_event";
     const response = await fetch(url, {
@@ -203,7 +198,7 @@ async function putData(data){
         headers: {"Content-Type": "application/json"}
     }).then(response => { 
         return response.json()
-    }).then(json =>{
+    }).then(json => {
         // console.log(json);
         updateList()
     }).catch(error => {
@@ -214,36 +209,34 @@ async function putData(data){
 
 // send delete request using fetch delete
 // asynchronious await
-async function deleteData(id){
+async function deleteData (id) {
     const url = "/delete"
     const response = await fetch(url, {
         method: 'delete',
         body: JSON.stringify({id: id}),
         headers: {'Content-Type': "application/json"}
-    }).then( response => {
+    }).then(response => {
         return response.json()
     }).then(json => {
         updateList()
     }).catch(error => console.log(error))
 }
 
-
-
-/*********************************** on click handlers **********************************/
+/** ********************************* on click handlers **********************************/
 
 // 'mehr' button handlers
 // fill the forms in the editor
-function handleEditButtonPressed(id){
+function handleEditButtonPressed (id) {
     handleCancelEditPressed(true);
 
     // get the info
     var elem = DOM(id)
     const objNum = elem.children[1].childElementCount
 
-    const in_date = elem.children[0].children[0].innerHTML;
-    const in_place = elem.children[0].children[1].innerHTML;
+    const inDate = elem.children[0].children[0].innerHTML;
+    const inPlace = elem.children[0].children[1].innerHTML;
 
-    toggleEditorInputs(false, in_date, in_place)
+    toggleEditorInputs(false, inDate, inPlace)
 
     var objs = DOM('editor_objects');
 
@@ -253,20 +246,18 @@ function handleEditButtonPressed(id){
     DOM('los_b').style.display = "block";
     DOM('los_b').classList.add("fade-in")
 
-
     var inputs = "";
     const inp = '<input type="text"';
 
-    if(objNum > 0){
-        for(var i = 0; i < objNum; i++){
+    if (objNum > 0) {
+        for (var i = 0; i < objNum; i++) {
             const v = elem.children[1].children[i].children[0].innerHTML;
             const val = inp + 'value="' + v +'" id="event_obj'+ (i +1) + '">';
             inputs += val;
         }
 
         objs.innerHTML = inputs;
-    }
-    else{
+    } else {
         objs.innerHTML = inp + 'id="event_obj1">';
     }
     
@@ -274,16 +265,14 @@ function handleEditButtonPressed(id){
     
 }
 
-
 // editor add 1 object
 // to event object list
-function handleAddObjectPressed(){
+function handleAddObjectPressed () {
     const children = DOM('editor_objects').children.length;
 
     editObjectCount++;
 
-    for(var i = children; i < editObjectCount; i++){
-        // inputs += inp + 'id="event_obj' + (i+1) + '">';
+    for (var i = children; i < editObjectCount; i++) {
         var input = document.createElement("input")
         input.type = "text"
         input.id = "event_obj" + (i+1)
@@ -293,26 +282,24 @@ function handleAddObjectPressed(){
 
 // editor delete 1 object
 // from event object list
-function handleDeleteObjectPressed(){
-    if (editObjectCount == 1){
+function handleDeleteObjectPressed () {
+    if (editObjectCount === 1) {
         DOM('editor_objects').childNodes[0].value = "";
         return
     }
-    var events =  DOM('editor_objects');
+    var events = DOM('editor_objects');
     const lastchild = events.children.length - 1;
     events.removeChild(events.children[lastchild]);
     editObjectCount--;
 }
 
-
 // check if the fields are properly filled
 // send the post request
-function handleSaveEditPressed(){
+function handleSaveEditPressed () {
     // check the fields
-    if(!checkFields()){
+    if (!checkFields()) {
         return
     }
-
     
     var date = ""
     date += "" + DOM('editor_year').value
@@ -329,17 +316,16 @@ function handleSaveEditPressed(){
     }
     objs.forEach(obj => {
         // only add field objects
-        if(obj.value && obj.value != ""){
+        if (obj.value && obj.value !== "") {
             data[obj.id] = obj.value;
         }
     })
 
     // put data
     // if the id is empty, then post data
-    if(data.id){
+    if (data.id) {
         putData(data);
-    }
-    else{
+    } else {
         postData(data)
     }
     
@@ -347,13 +333,13 @@ function handleSaveEditPressed(){
 }
 
 // set initial editor state
-function handleCancelEditPressed(notoggle=false){
+function handleCancelEditPressed (notoggle=false) {
     var objs = DOM('editor_objects');
     objs.innerHTML = "<input type='text' disabled>";
     
     DOM('editor_id').value = "";
 
-    if(!notoggle){
+    if (!notoggle) {
         toggleEditorInputs(true, "", "")
     }
 
@@ -369,7 +355,7 @@ function handleCancelEditPressed(notoggle=false){
 }
 
 // create a new entry
-function handleNewEntry(){
+function handleNewEntry () {
     handleCancelEditPressed();
     DOM('los_b').style.display = "none";
     
@@ -386,9 +372,9 @@ function handleNewEntry(){
 }
 
 // delete entry in the editor
-function handleDeleteEntry(){
+function handleDeleteEntry () {
     const ID = DOM('editor_id').value.split('_')[2];
-    if(ID){
+    if (ID) {
         deleteData(ID)
     }
     handleCancelEditPressed()
