@@ -4,9 +4,12 @@
   "description": "Amateurastronomischen Beobachtungssitzungen Planner",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "eslint ./public/js/*.js",
+    "build": "echo \"Build called\"",
+    "debug": "echo \"Debug called\"",
+    "clean": "echo \"Clean called\""
   },
-  "author": "J. Esteban Vega",
+  "author": "J. Esteban Vega & Krystian Sereda",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.18.2",
