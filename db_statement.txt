@@ -1,0 +1,15 @@
+CREATE DATABASE `db_projekt` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */;
+CREATE TABLE `event_entries` (
+  `EventId` int(11) NOT NULL AUTO_INCREMENT,
+  `EventDate` date DEFAULT NULL,
+  `EventLoc` varchar(150) DEFAULT NULL,
+  PRIMARY KEY (`EventId`)
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE `event_objects` (
+  `EventObjId` int(11) NOT NULL AUTO_INCREMENT,
+  `Description` varchar(255) DEFAULT NULL,
+  `EventId` int(11) NOT NULL,
+  PRIMARY KEY (`EventObjId`),
+  KEY `EventId` (`EventId`),
+  CONSTRAINT `event_objects_ibfk_1` FOREIGN KEY (`EventId`) REFERENCES `event_entries` (`eventid`)
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
