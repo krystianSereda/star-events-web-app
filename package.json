@@ -4,11 +4,15 @@
   "description": "Amateurastronomischen Beobachtungssitzungen Planner",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint ./public/js/*.js",
-    "min": "echo \"Min called - browserify & less compile\"",
-    "build": "echo \"Build called \" & min",
+    "indexlint": "eslint index.js || { echo 'index.js lint failed' ; exit 1; }",
+    "publiclint": "eslint ./public/js/*.js || { echo 'static files lint failed' ; exit 1; }",
+    "lint": "npm run indexlint && npm run publiclint",
+    "minless": "lessc ./compilables/less/main.less ./public/css/main.css",
+    "minbrowserify": "echo \"browserify\"",
+    "min": "npm run minless && npm run minbrowserify",
+    "build": "echo \"Build called \"",
     "debug": "echo \"Debug called\"",
-    "clean": "echo \"Clean called\""
+    "clean": "rm -f ./public/css/main.css"
   },
   "author": "J. Esteban Vega & Krystian Sereda",
   "license": "ISC",

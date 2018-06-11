@@ -1,0 +1,179 @@
+.entry-editor{
+    position: fixed;
+    width: 50vw;
+    height: 100vh;
+    top: 0;
+    left: 50vw;
+    box-sizing: border-box;
+    background-color: #444;
+    color: white;
+    padding: 0;
+    overflow-y: scroll;
+}
+
+.editor-map-container{
+    width: 100%;
+    height: 200px;
+    color: white;
+    margin: 0;
+    box-sizing: border-box;
+
+    h1{
+        margin: 0;
+    }
+}
+
+.editor-input-container{
+    h3{
+        margin: 10px;
+        color: #bbb;
+    }
+
+    input[type=text]{
+        width: 280px;
+        border: none;
+
+        &:disabled{
+            background-color:rgba(0, 0, 0, 0);
+            border: 1px solid #bbb;
+        }
+    }
+
+    input[type=number]{
+
+        &:disabled{
+            background-color:rgba(0, 0, 0, 0);
+            border: 1px solid #bbb;
+        }
+    }
+
+   
+
+    button{
+        font-family:Helvetica, sans-serif;
+        font-weight: lighter;
+        padding: 5px;
+        cursor: pointer;
+        border: none;
+        font-size: 16px;
+
+        &:disabled{
+            opacity: 0.5;
+            cursor: initial;
+        }
+    }
+}
+
+.editor-object-container{
+    width: 280px;
+}
+
+.add-button{
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: royalblue;
+    color: white;
+}
+.del-button{
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: crimson;
+    color: white;
+}
+
+.end-button{
+    float: right;
+    background-color: rgb(100, 163, 4);
+    color: white;
+    border-radius: 2px;
+    margin-right: 20px;
+    letter-spacing: 1px;
+}
+
+.extra-space{
+    width: 100%;
+    height: 200px;
+}
+
+.error-field{
+    border: 1px solid red;
+    background-color: pink;
+}
+
+.new_b, .los_b{
+    position: fixed;
+    top: 20px;
+
+    font-family: Helvetica, sans-serif;
+    font-weight: lighter;
+    padding: 5px;
+    cursor: pointer;
+    border: none;
+    font-size: 14px;
+
+    color: white;
+    border-radius: 2px;
+    letter-spacing: 1px;
+
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+}
+
+.new_b{
+    right: calc(50vw + 20px);
+    background-color: #0068df;
+    z-index: 200;
+}
+
+.los_b{
+    right: 10px;
+    background-color: crimson;
+    display: none;
+    z-index: 200;
+}
+  
+.cancel-button {
+    float: right;
+    background-color: #f51313;
+    color: white;
+    border-radius: 2px;
+    margin-right: 20px;
+    letter-spacing: 1px;
+}
+
+.page-interaction-container{
+    position: absolute;
+    top: 60px;
+    background-color: white;
+    height: 45px;
+    width: 50vw;
+    box-sizing: border-box;
+    box-shadow: 0 5px 5px rgba(0, 0, 0, 0.2);
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    z-index: 100;
+
+    h3{
+        margin: 0 50px;
+        margin-top: 15px;
+        font-size: 16px;
+        color: #555;
+    }
+
+    button{
+        border: none;
+        padding: 5px 10px;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        cursor: pointer;
+        background-color: white;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        color: #444;
+    }
+    
+}
+
+  
