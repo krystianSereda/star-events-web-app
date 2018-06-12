@@ -16,8 +16,10 @@ app.use(bodyparser.json())
 // renders the ejs templates
 app.set("view engine", "ejs")
 
+var commandPort = process.argv[2]
+
 // port for the app to be hosted to
-const prt = 8080
+const prt = commandPort|| 8080
 
 /** ************************************** functions **********************************************/
 

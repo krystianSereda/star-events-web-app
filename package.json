@@ -8,11 +8,12 @@
     "publiclint": "eslint ./public/js/*.js || { echo 'static files lint failed' ; exit 1; }",
     "lint": "npm run indexlint && npm run publiclint",
     "minless": "lessc ./compilables/less/main.less ./public/css/main.css",
-    "minbrowserify": "echo \"browserify\"",
+    "minbrowserify": "browserify ./compilables/js/main.js -d -s handler > ./public/js/main.js",
     "min": "npm run minless && npm run minbrowserify",
-    "build": "echo \"Build called \"",
-    "debug": "echo \"Debug called\"",
-    "clean": "rm -f ./public/css/main.css"
+    "build": "npm run lint && npm run min",
+    "debug": "npm run build && nodemon index.js",
+    "start": "npm run build && node index.js",
+    "clean": "rm -f ./public/css/main.css ./public/js/main.js"
   },
   "author": "J. Esteban Vega & Krystian Sereda",
   "license": "ISC",

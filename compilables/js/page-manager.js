@@ -117,6 +117,10 @@ window.onresize = function () {
 
 }
 
-// exports.checkHeight = function () {
-//     checkHeight()
-// }
+exports.checkHeight = function () {
+    checkHeight()
+}
+
+exports.handlePageButton = function (isPlus) {
+    handlePageButton(isPlus)
+} 

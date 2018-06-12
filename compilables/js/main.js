@@ -1,4 +1,4 @@
-// const pageManager = require('./page-manager.js')
+const pageManager = require('./page-manager')
 
 var editObjectCount = 1;
 
@@ -7,25 +7,6 @@ var editObjectCount = 1;
 // returns the element (less redundancy)
 function DOM (id) {
     return document.getElementById(id);
-}
-
-// check for min max values for dates
-function checkMinMax (elem) {
-    const max = parseInt(elem.max)
-    const min = parseInt(elem.min)
-    
-    if (elem.value <= max && elem.value >= min) {
-        return
-    }
-
-    if (elem.value < min) {
-        elem.value = min
-        return
-    }
-    
-    if (elem.value > max) {
-        elem.value = max
-    }
 }
 
 // enable / disable the editor input fields, and optionally
@@ -88,7 +69,7 @@ function appendListItem (data) {
         body += '<h4 class="no-objects">Keine Objekte</h4>'
     }
     const button = "<button onclick=\""
-    + "handleEditButtonPressed(\'entry_id_" + data.EventId + "\')\">"
+    + "handler.handleEditButtonPressed(\'entry_id_" + data.EventId + "\')\">"
     + "mehr</button>"
     
     listItem.innerHTML = title + body + button
@@ -113,8 +94,7 @@ function updateList () {
             appendListItem(item)
         })
         // recalculate pages
-        // pageManager.checkHeight()
-        checkHeight()
+        pageManager.checkHeight()
     }).catch(error => {
         console.log(error);
     });
@@ -224,158 +204,187 @@ async function deleteData (id) {
 
 /** ********************************* on click handlers **********************************/
 
-// 'mehr' button handlers
-// fill the forms in the editor
-function handleEditButtonPressed (id) {
-    handleCancelEditPressed(true);
+var objExport = {
 
-    // get the info
-    var elem = DOM(id)
-    const objNum = elem.children[1].childElementCount
+    // 'mehr' button handlers
+    // fill the forms in the editor
+    handleEditButtonPressed: function (id) {
+        this.handleCancelEditPressed(true);
 
-    const inDate = elem.children[0].children[0].innerHTML;
-    const inPlace = elem.children[0].children[1].innerHTML;
+        // get the info
+        var elem = DOM(id)
+        const objNum = elem.children[1].childElementCount
 
-    toggleEditorInputs(false, inDate, inPlace)
+        const inDate = elem.children[0].children[0].innerHTML;
+        const inPlace = elem.children[0].children[1].innerHTML;
 
-    var objs = DOM('editor_objects');
+        toggleEditorInputs(false, inDate, inPlace)
 
-    DOM('editor_id').value = "" + id;
+        var objs = DOM('editor_objects');
 
-    // delete button
-    DOM('los_b').style.display = "block";
-    DOM('los_b').classList.add("fade-in")
+        DOM('editor_id').value = "" + id;
 
-    var inputs = "";
-    const inp = '<input type="text"';
+        // delete button
+        DOM('los_b').style.display = "block";
+        DOM('los_b').classList.add("fade-in")
 
-    if (objNum > 0) {
-        for (var i = 0; i < objNum; i++) {
-            const v = elem.children[1].children[i].children[0].innerHTML;
-            const val = inp + 'value="' + v +'" id="event_obj'+ (i +1) + '">';
-            inputs += val;
+        var inputs = "";
+        const inp = '<input type="text"';
+
+        if (objNum > 0) {
+            for (var i = 0; i < objNum; i++) {
+                const v = elem.children[1].children[i].children[0].innerHTML;
+                const val = inp + 'value="' + v +'" id="event_obj'+ (i +1) + '">';
+                inputs += val;
+            }
+
+            objs.innerHTML = inputs;
+        } else {
+            objs.innerHTML = inp + 'id="event_obj1">';
+        }
+        
+        editObjectCount = objNum;
+        
+    },
+
+    // editor add 1 object
+    // to event object list
+    handleAddObjectPressed: function () {
+        const children = DOM('editor_objects').children.length;
+
+        editObjectCount++;
+
+        for (var i = children; i < editObjectCount; i++) {
+            var input = document.createElement("input")
+            input.type = "text"
+            input.id = "event_obj" + (i+1)
+            DOM('editor_objects').appendChild(input)
+        }
+    },
+
+    // editor delete 1 object
+    // from event object list
+    handleDeleteObjectPressed: function () {
+        if (editObjectCount === 1) {
+            DOM('editor_objects').childNodes[0].value = "";
+            return
+        }
+        var events = DOM('editor_objects');
+        const lastchild = events.children.length - 1;
+        events.removeChild(events.children[lastchild]);
+        editObjectCount--;
+    },
+
+    // check if the fields are properly filled
+    // send the post request
+    handleSaveEditPressed: function () {
+        // check the fields
+        if (!checkFields()) {
+            return
+        }
+        
+        var date = ""
+        date += "" + DOM('editor_year').value
+        date += "-" + DOM('editor_month').value
+        date += "-" + DOM('editor_day').value
+        var plac = DOM('editor_place');
+        var objs = DOM('editor_objects').childNodes;
+        const ID = DOM('editor_id').value.split('_')[2];
+        
+        const data = {
+            event_date: date,
+            event_loc: plac.value,
+            id: ID
+        }
+        objs.forEach(obj => {
+            // only add field objects
+            if (obj.value && obj.value !== "") {
+                data[obj.id] = obj.value;
+            }
+        })
+
+        // put data
+        // if the id is empty, then post data
+        if (data.id) {
+            putData(data);
+        } else {
+            postData(data)
+        }
+        
+        this.handleCancelEditPressed();
+    },
+
+    // set initial editor state
+    handleCancelEditPressed: function (notoggle=false) {
+        var objs = DOM('editor_objects');
+        objs.innerHTML = "<input type='text' disabled>";
+        
+        DOM('editor_id').value = "";
+
+        if (!notoggle) {
+            toggleEditorInputs(true, "", "")
         }
 
-        objs.innerHTML = inputs;
-    } else {
-        objs.innerHTML = inp + 'id="event_obj1">';
-    }
-    
-    editObjectCount = objNum;
-    
-}
+        // delete button
+        DOM('los_b').style.display = "none";
+        DOM('los_b').classList.remove("fade-in")
 
-// editor add 1 object
-// to event object list
-function handleAddObjectPressed () {
-    const children = DOM('editor_objects').children.length;
+        DOM('editor_place').classList.remove('error-field')
+        DOM('editor_day').classList.remove('error-field')
+        DOM('editor_month').classList.remove('error-field')
+        DOM('editor_year').classList.remove('error-field')
 
-    editObjectCount++;
+    },
 
-    for (var i = children; i < editObjectCount; i++) {
-        var input = document.createElement("input")
-        input.type = "text"
-        input.id = "event_obj" + (i+1)
-        DOM('editor_objects').appendChild(input)
-    }
-}
+    // create a new entry
+    handleNewEntry: function () {
+        this.handleCancelEditPressed();
+        DOM('los_b').style.display = "none";
+        
+        var objs = DOM('editor_objects');
+        
+        objs.innerHTML = '<input type="text" id="event_obj1">';
+        
+        DOM('editor_id').value = "";
 
-// editor delete 1 object
-// from event object list
-function handleDeleteObjectPressed () {
-    if (editObjectCount === 1) {
-        DOM('editor_objects').childNodes[0].value = "";
-        return
-    }
-    var events = DOM('editor_objects');
-    const lastchild = events.children.length - 1;
-    events.removeChild(events.children[lastchild]);
-    editObjectCount--;
-}
+        toggleEditorInputs(false, "", "");
 
-// check if the fields are properly filled
-// send the post request
-function handleSaveEditPressed () {
-    // check the fields
-    if (!checkFields()) {
-        return
-    }
-    
-    var date = ""
-    date += "" + DOM('editor_year').value
-    date += "-" + DOM('editor_month').value
-    date += "-" + DOM('editor_day').value
-    var plac = DOM('editor_place');
-    var objs = DOM('editor_objects').childNodes;
-    const ID = DOM('editor_id').value.split('_')[2];
-    
-    const data = {
-        event_date: date,
-        event_loc: plac.value,
-        id: ID
-    }
-    objs.forEach(obj => {
-        // only add field objects
-        if (obj.value && obj.value !== "") {
-            data[obj.id] = obj.value;
+        editObjectCount = 1;
+
+    },
+
+    // delete entry in the editor
+    handleDeleteEntry: function () {
+        const ID = DOM('editor_id').value.split('_')[2];
+        if (ID) {
+            deleteData(ID)
         }
-    })
+        this.handleCancelEditPressed()
+    },
 
-    // put data
-    // if the id is empty, then post data
-    if (data.id) {
-        putData(data);
-    } else {
-        postData(data)
+    handlePageButton: function (isPlus) {
+        pageManager.handlePageButton(isPlus)
+    },
+
+    // check for min max values for dates
+    checkMinMax: function (elem) {
+        const max = parseInt(elem.max)
+        const min = parseInt(elem.min)
+        
+        if (elem.value <= max && elem.value >= min) {
+            return
+        }
+
+        if (elem.value < min) {
+            elem.value = min
+            return
+        }
+        
+        if (elem.value > max) {
+            elem.value = max
+        }
     }
-    
-    handleCancelEditPressed();
-}
-
-// set initial editor state
-function handleCancelEditPressed (notoggle=false) {
-    var objs = DOM('editor_objects');
-    objs.innerHTML = "<input type='text' disabled>";
-    
-    DOM('editor_id').value = "";
-
-    if (!notoggle) {
-        toggleEditorInputs(true, "", "")
-    }
-
-    // delete button
-    DOM('los_b').style.display = "none";
-    DOM('los_b').classList.remove("fade-in")
-
-    DOM('editor_place').classList.remove('error-field')
-    DOM('editor_day').classList.remove('error-field')
-    DOM('editor_month').classList.remove('error-field')
-    DOM('editor_year').classList.remove('error-field')
 
 }
 
-// create a new entry
-function handleNewEntry () {
-    handleCancelEditPressed();
-    DOM('los_b').style.display = "none";
-    
-    var objs = DOM('editor_objects');
-    
-    objs.innerHTML = '<input type="text" id="event_obj1">';
-    
-    DOM('editor_id').value = "";
-
-    toggleEditorInputs(false, "", "");
-
-    editObjectCount = 1;
-
-}
-
-// delete entry in the editor
-function handleDeleteEntry () {
-    const ID = DOM('editor_id').value.split('_')[2];
-    if (ID) {
-        deleteData(ID)
-    }
-    handleCancelEditPressed()
-}
+module.exports = objExport
