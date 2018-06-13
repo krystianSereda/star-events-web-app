@@ -4,8 +4,8 @@
   "description": "Amateurastronomischen Beobachtungssitzungen Planner",
   "main": "index.js",
   "scripts": {
-    "indexlint": "eslint index.js || { echo 'index.js lint failed' ; exit 1; }",
-    "publiclint": "eslint ./public/js/*.js || { echo 'static files lint failed' ; exit 1; }",
+    "indexlint": "eslint index.js || echo 'index.js lint failed' && exit 1",
+    "publiclint": "eslint ./public/js/*.js || echo 'static files lint failed' && exit 1",
     "lint": "npm run indexlint && npm run publiclint",
     "minless": "lessc ./compilables/less/main.less ./public/css/main.css",
     "minbrowserify": "browserify ./compilables/js/main.js -d -s handler > ./public/js/main.js",
