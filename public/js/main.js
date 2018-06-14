@@ -228,7 +228,10 @@ var objExport = {
         // delete button
         DOM('los_b').style.display = "block";
         DOM('los_b').classList.add("fade-in")
-
+        DOM('los_a').style.display = "block";
+        DOM('los_a').classList.add("fade-in")
+        DOM('los_c').style.display = "block";
+        DOM('los_c').classList.add("fade-in")
         var inputs = "";
         const inp = '<input type="text"';
 
@@ -330,6 +333,12 @@ var objExport = {
         DOM('los_b').style.display = "none";
         DOM('los_b').classList.remove("fade-in")
 
+        DOM('los_a').style.display = "none";
+        DOM('los_a').classList.remove("fade-in")
+
+        DOM('los_c').style.display = "none";
+        DOM('los_c').classList.remove("fade-in")
+
         DOM('editor_place').classList.remove('error-field')
         DOM('editor_day').classList.remove('error-field')
         DOM('editor_month').classList.remove('error-field')
@@ -341,7 +350,9 @@ var objExport = {
     handleNewEntry: function () {
         this.handleCancelEditPressed();
         DOM('los_b').style.display = "none";
-        
+        DOM('los_a').style.display = "none";
+        DOM('los_c').style.display = "none";
+
         var objs = DOM('editor_objects');
         
         objs.innerHTML = '<input type="text" id="event_obj1">';

@@ -208,6 +208,8 @@ h1 {
   display: none;
   z-index: 200;
 }
+#los_b{top:90px;}
+#los_a{top:55px;}
 .cancel-button {
   float: right;
   background-color: #f51313;
